@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+<title>Sign Up | OrderSystem</title>
+{% endblock title %}
+{% block extrahead %}
+{% endblock extrahead %}
+{% block content %}
+    <h2>Get Register</h2>
+    <div class="row">
+        <div class="col-md-6" id="form-col">
+              <form id="form-col" action="{% url 'account_signup' %}" method="post">
+            {% csrf_token %}
+                {{ form |crispy }}
+            <input class="btn btn-primary" type="submit" value="Register">
+        </form>
+        </div>
+    </div>
+
+
+{% endblock content %}

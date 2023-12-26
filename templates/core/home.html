@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% block extrahead %}
+    <style>
+        .folder-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .folder-card:hover {
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        a{
+            text-decoration: none;
+            color: black;
+        }
+        .search-form {
+            margin-bottom: 20px;
+        }
+
+    </style>
+{% endblock extrahead %}
+{% block content %}
+    <div class="container">
+        <h1 class="mb-4">My Encrypted Drive</h1>
+    <div class="btn-group mb-3">
+    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Sort By
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="?sort=name">Name</a></li>
+        <li><a class="dropdown-item" href="?sort=date">Date Created</a></li>
+    </ul>
+</div>
+        <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createFolderModalLabel">Create Folder</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'home' %}">
+                            {% csrf_token %}
+                            <div class="col-md-6">
+                                {{ form | crispy }}
+                                <input class="btn btn-success" type="submit" value="Create Folder">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+            Create Folder
+        </button>
+      <form method="GET" action="{% url 'home' %}" class="search-form">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search folders..." name="q">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </div>
+        </form>
+
+    <br>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for folder in folders %}
+
+                <div class="col">
+                    <div class="card folder-card">
+                         <a  href="{% url 'user_folder_detail' folder.slug %}">
+                         <div class="card-body  d-flex align-items-center ">
+
+                                <i class="bi bi-folder me-2"></i>
+                                <p class="card-title mb-0">{{ folder.name }}</p>
+                             </div>
+                         </a>
+
+
+                    </div>
+                </div>
+             {% empty %}
+                <a href="{% url 'add_folder' %}"> Create Folder To Upload Files In Encrypted Format. </a>
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+{% endblock content %}

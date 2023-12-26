@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% block content %}
+    <div class="container">
+        <h1>Create Folder</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <button type="submit" class="btn btn-primary mt-3">Create Folder</button>
+        </form>
+    </div>
+
+{% endblock content %}

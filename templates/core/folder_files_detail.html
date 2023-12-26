@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% block extrahead %}
+    <style>
+    /* Style the upload area */
+.upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+/* Style the file input */
+.file-input {
+    margin-bottom: 10px;
+}
+
+/* Style the dropzone message */
+.dropzone-message {
+    display: block;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Style the browse text */
+.browse {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+/* Additional styling for the icon */
+.fa-cloud-upload-alt {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+    </style>
+{% endblock extrahead %}
+{% block content %}
+     <div class="container">
+        <div class="col-md-12">
+
+            <div class="row mt-5" id="pheading">
+                <a style="text-decoration: none; color: black;" href="{% url 'home' %}" id="back"><i class="bi bi-arrow-left-short"></i>Back > {{ folder.name }} </a>
+            </div>
+        </div>
+    </div>
+<div class="container">
+<div class="row mb-3">
+ <div class="col-md-12 d-flex align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sortingDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Sort by
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="sortingDropdown">
+                    <li><a class="dropdown-item" href="?sort=latest">Latest</a></li>
+                    <li><a class="dropdown-item" href="?sort=name">Name</a></li>
+                </ul>
+            </div>
+            <button type="button" class="btn btn-primary" style="margin-left: 10px;" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+                <i class="bi bi-cloud-upload"></i> Upload File
+            </button>
+        </div>
+
+</div>
+
+
+    <div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadFileModalLabel">Upload File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <form method="post" action="{% url 'upload_file_in_folder' folder.slug %}" enctype="multipart/form-data" class="dropzone dz" id="my-dropzone">
+                    {% csrf_token %}
+                   {{ form.name | as_crispy_field }}
+    <div class="upload-area">
+        <div class="fallback">
+            {{ form.file | as_crispy_field }}
+        </div>
+        <div class="dropzone-message">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Drag and drop a file here. </span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Files in this folder:</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Date Uploaded</th>
+                        <th>Encrypted</th>
+                        <th>Decrypted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ file.created_at }}</td>
+                            <td><a href="{{ file.file.url }}" class="btn btn-dark">  <i class="bi bi-lock"></i> </a></td>
+                            <td>
+                                <a href="{% url 'decrypt_file_view' file.slug %}"  class="btn btn-sm btn-success">
+                                    <i class="bi bi-download"></i>
+                                </a>
+
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No files found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrascript %}
+    <script>
+    // Initialize Dropzone
+    const myDropzone = new Dropzone("#my-dropzone", {
+        paramName: "file",
+        maxFilesize: 200,    // MB
+        maxFiles: 1,        // Maximum number of files
+        url: "{% url 'upload_file_in_folder' folder.slug %}",
+        {#acceptedFiles: ".csv", // Accepted file types#}
+        dictDefaultMessage: "",
+        success: function (file, response) {
+            // Handle the success callback (e.g., display success message)
+            displayMessage('success', 'File uploaded successfully.');
+              window.location.href = "{% url 'home' %}";
+        },
+        error: function (file, errorMessage) {
+            // Handle the error callback (e.g., display error message)
+            console.error('Error uploading file:', file);
+
+            // Display an error message for invalid file type
+            if (file.type && file.type !== 'application/vnd.ms-excel') {
+                displayMessage('error', 'Invalid file type. Please upload a CSV file.');
+                this.removeFile(file);
+            }
+        },
+         sending: function(file, xhr, formData) {
+        const name = document.getElementById('id_name').value; // Assuming file_name is an input field
+        formData.append('name', name);
+    }
+    });
+
+    // Add event listener to the Upload button
+    const uploadButton = document.getElementById('upload-button');
+    uploadButton.addEventListener('click', function() {
+        myDropzone.processQueue(); // Process the files in the queue
+    });
+
+    function displayMessage(type, message) {
+        const messageContainer = document.getElementById('upload-messages');
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.classList.add('alert', alertClass);
+        alertDiv.role = 'alert';
+        alertDiv.textContent = message;
+
+        messageContainer.innerHTML = '';  // Clear existing messages
+        messageContainer.appendChild(alertDiv);
+    }
+
+    const submitButton = document.getElementById("submit-button");
+    const uploadForm = document.getElementById("upload-form");
+
+    submitButton.addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    // Manually trigger file upload
+    dropzone.processQueue();
+
+    // Listen to the success event
+    dropzone.on("success", (file, response) => {
+        console.log("File uploaded successfully:", file);
+        // Add any further processing after successful upload
+    });
+
+    // Listen to the error event
+    dropzone.on("error", (file, errorMessage) => {
+        console.error("Error uploading file:", file, errorMessage);
+        // Handle errors if needed
+    });
+
+    // Listen to the queue complete event
+    dropzone.on("queuecomplete", () => {
+        console.log("All files have been uploaded.");
+        // Add any further processing after all files are uploaded
+    });
+    });
+</script>
+{% endblock extrascript %}

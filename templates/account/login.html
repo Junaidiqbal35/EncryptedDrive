@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% load static %}
+{% block head_title %} Sign In {% endblock %}
+{% block title %}
+<title>Sign In | OrderSystem</title>
+{% endblock title %}
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/reg.css' %}">
+{% endblock extrahead %}
+{% block content %}
+<div class="container ">
+
+<h2 class="text-center mt-3"> Sign In </h2>
+    <div class="wrapper">
+      <form class="p-3 mt-3" id="form-col" action="{% url 'account_login' %}" method="POST">
+          {% csrf_token %}
+           {{ form|as_crispy_errors }}
+          <div class="row">
+              <div class="col-md-6">
+                    {{ form|crispy }}
+                    <button class="btn btn-danger" type="submit">Login</button>
+              </div>
+          </div>
+      </form>
+
+  </div>
+</div>
+
+{% endblock %}

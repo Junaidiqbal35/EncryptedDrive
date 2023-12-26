@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+ <div class="container">
+        <div class="col-md-12">
+
+            <div class="row mt-5" id="pheading">
+                <a href="{% url 'home' %}" id="back"><i class="bi bi-arrow-left-short"></i></a>
+{#                <p class="mt-2"><a id="ahome" href="{% url 'home' %}">Home</a> </p>#}
+            </div>
+        </div>
+    </div>
+<div class="container">
+    <h1>File Detail</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ file.name }}</h5>
+            <form method="post" action="{% url 'decrypt_file_view' file.slug %}" id="decryptionForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="decryptionKey" class="form-label">Decryption Key</label>
+                    <input type="text" class="form-control" id="decryptionKey" name="decryption_key">
+                </div>
+                <button type="submit" class="btn btn-primary">Decrypt File</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
