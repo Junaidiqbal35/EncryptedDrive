@@ -100,12 +100,13 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Files in this folder:</h5>
+            <h5 class="card-title">{{ folder.name }} Files <i class="bi bi-files"></i> </h5>
             <table class="table">
                 <thead>
                     <tr>
                         <th>File Name</th>
                         <th>Date Uploaded</th>
+                        <th>File Size</th>
                         <th>Encrypted</th>
                         <th>Decrypted</th>
                     </tr>
@@ -115,6 +116,7 @@
                         <tr>
                             <td>{{ file.name }}</td>
                             <td>{{ file.created_at }}</td>
+                            <td> {{ file.file_size|filesizeformat }}</td>
                             <td><a href="{{ file.file.url }}" class="btn btn-dark">  <i class="bi bi-lock"></i> </a></td>
                             <td>
                                 <a href="{% url 'decrypt_file_view' file.slug %}"  class="btn btn-sm btn-success">

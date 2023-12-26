@@ -29,3 +29,9 @@ class File(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(File, self).save(*args, **kwargs)
+
+    @property
+    def file_size(self):
+        if self.file:
+            return self.file.size
+        return None
